@@ -17,14 +17,14 @@ function writeLog($message) {
 writeLog("=== Nova requisição iniciada ===");
 writeLog("POST data: " . print_r($_POST, true));
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+try {
+    if ($_SERVER["REQUEST_METHOD"] != "POST") {
+        throw new Exception('Método inválido');
+    }
+
     // Validação básica
     if (empty($_POST['name']) || empty($_POST['email']) || empty($_POST['subject']) || empty($_POST['message'])) {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Por favor, preencha todos os campos.'
-        ]);
-        exit;
+        throw new Exception('Por favor, preencha todos os campos.');
     }
 
     // Sanitização dos dados
@@ -35,16 +35,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Validação do email
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Por favor, forneça um email válido.'
-        ]);
-        exit;
+        throw new Exception('Por favor, forneça um email válido.');
     }
 
     // Configurações do email
     $to = 'suporte@expaybank.com.br';
-    $subject = '[Contato do Site] ' . $subject;
+    $emailSubject = '[Contato do Site] ' . $subject;
 
     // Headers específicos para a Hostinger
     $headers = [];
@@ -89,7 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Tenta enviar o email
     writeLog("Tentando enviar email para: " . $to);
-    $result = mail($to, $subject, $emailBody, implode("\r\n", $headers));
+    $result = mail($to, $emailSubject, $emailBody, implode("\r\n", $headers));
 
     if ($result) {
         writeLog("Email enviado com sucesso!");
@@ -100,16 +96,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         $error = error_get_last();
         writeLog("Erro ao enviar email: " . print_r($error, true));
-        echo json_encode([
-            'success' => false,
-            'message' => 'Erro ao enviar mensagem. Por favor, tente novamente mais tarde.',
-            'error' => $error
-        ]);
+        throw new Exception('Erro ao enviar mensagem. Por favor, tente novamente mais tarde.');
     }
-} else {
+} catch (Exception $e) {
+    writeLog("Exceção capturada: " . $e->getMessage());
     echo json_encode([
         'success' => false,
-        'message' => 'Método inválido'
+        'message' => $e->getMessage()
     ]);
 }
 ?> 

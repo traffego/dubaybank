@@ -473,35 +473,12 @@ function showFeedback(success, title, message) {
     };
 }
 
-// Form Validation
-const forms = document.querySelectorAll('form');
-forms.forEach(form => {
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const inputs = form.querySelectorAll('input, textarea');
-        let isValid = true;
-        
-        inputs.forEach(input => {
-            if (!input.value.trim()) {
-                isValid = false;
-                input.classList.add('error');
-            } else {
-                input.classList.remove('error');
-            }
-        });
-        
-        if (isValid) {
-            console.log('Formulário válido, pronto para enviar');
-        }
-    });
-});
-
+// Form Validation and Submission
 document.addEventListener('DOMContentLoaded', function() {
     // Modal functionality
     const modal = document.getElementById('contactModal');
     const closeButtons = document.querySelectorAll('.close-modal');
     const contactButtons = document.querySelectorAll('.contact-button');
-    const contactForm = document.getElementById('contactForm');
     
     if (contactButtons.length > 0 && modal) {
         contactButtons.forEach(button => {
@@ -531,12 +508,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Manipulação do formulário de suporte
-    const supportForm = document.getElementById('supportForm');
-    if (supportForm) {
+    // Manipulação unificada dos formulários
+    const forms = document.querySelectorAll('#contactForm, #supportForm');
+    forms.forEach(form => {
         let isSubmitting = false; // Flag para prevenir envio duplo
         
-        supportForm.addEventListener('submit', function(e) {
+        form.addEventListener('submit', function(e) {
             e.preventDefault();
             
             // Prevenir envio duplo
@@ -580,7 +557,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Resposta do servidor:', data);
                 if (data.success) {
                     showFeedback(true, 'Sucesso!', data.message);
-                    supportForm.reset();
+                    form.reset();
+                    if (modal && form.id === 'contactForm') {
+                        setTimeout(() => {
+                            modal.style.display = 'none';
+                            document.body.style.overflow = 'auto';
+                        }, 2000);
+                    }
                 } else {
                     showFeedback(false, 'Erro', data.message);
                 }
@@ -595,5 +578,5 @@ document.addEventListener('DOMContentLoaded', function() {
                 isSubmitting = false; // Reset da flag de envio
             });
         });
-    }
+    });
 }); 
