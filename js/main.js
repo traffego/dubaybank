@@ -364,63 +364,89 @@ document.addEventListener('DOMContentLoaded', function() {
     const contactButtons = document.querySelectorAll('.contact-button');
     const contactForm = document.getElementById('contactForm');
     
-    contactButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
+    // Só adiciona os event listeners se os elementos existirem
+    if (contactButtons.length > 0 && modal) {
+        contactButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            });
         });
-    });
+    }
 
-    closeButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        });
-    });
-
-    window.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-    });
-
-    // Form submission
-    contactForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(contactForm);
-        const submitButton = contactForm.querySelector('button[type="submit"]');
-        const originalButtonText = submitButton.innerHTML;
-        
-        submitButton.disabled = true;
-        submitButton.innerHTML = 'Enviando...';
-        
-        fetch('send_email.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Mensagem enviada com sucesso!');
-                contactForm.reset();
+    if (closeButtons.length > 0 && modal) {
+        closeButtons.forEach(button => {
+            button.addEventListener('click', function() {
                 modal.style.display = 'none';
                 document.body.style.overflow = 'auto';
-            } else {
-                alert('Erro ao enviar mensagem. Por favor, tente novamente.');
-            }
-        })
-        .catch(error => {
-            alert('Erro ao enviar mensagem. Por favor, tente novamente.');
-            console.error('Error:', error);
-        })
-        .finally(() => {
-            submitButton.disabled = false;
-            submitButton.innerHTML = originalButtonText;
+            });
         });
-    });
+    }
+
+    if (modal) {
+        window.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        });
+    }
+
+    // Form submission - apenas se o formulário existir
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validação dos campos
+            const name = this.querySelector('#name').value.trim();
+            const email = this.querySelector('#email').value.trim();
+            const subject = this.querySelector('#subject').value.trim();
+            const message = this.querySelector('#message').value.trim();
+            
+            if (!name || !email || !subject || !message) {
+                alert('Por favor, preencha todos os campos.');
+                return;
+            }
+            
+            const formData = new FormData(contactForm);
+            const submitButton = contactForm.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
+            
+            fetch('send_email.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    contactForm.reset();
+                    if (modal) {
+                        modal.style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                    }
+                } else {
+                    if (data.errors) {
+                        alert(data.message + '\n' + data.errors.join('\n'));
+                    } else {
+                        alert(data.message);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao enviar mensagem. Por favor, tente novamente.');
+            })
+            .finally(() => {
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+            });
+        });
+    }
 
     // Manipulação do formulário de suporte
     const supportForm = document.getElementById('supportForm');
@@ -448,33 +474,41 @@ document.addEventListener('DOMContentLoaded', function() {
             // Coleta os dados do formulário
             const formData = new FormData(this);
             
+            // Log dos dados do formulário
+            console.log('Dados do formulário:');
+            for (let pair of formData.entries()) {
+                console.log(pair[0] + ': ' + pair[1]);
+            }
+            
             // Envia a requisição
             fetch('send_email.php', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro na resposta do servidor: ' + response.status);
+                }
+                return response.json();
+            })
             .then(data => {
-                console.log('Resposta do servidor:', data); // Debug
+                console.log('Resposta do servidor:', data);
                 if (data.success) {
-                    // Mensagem de sucesso
                     alert(data.message);
                     supportForm.reset();
                 } else {
-                    // Mensagem de erro
                     if (data.errors) {
                         alert(data.message + '\n' + data.errors.join('\n'));
                     } else {
-                        alert(data.message);
+                        alert(data.message || 'Erro ao enviar mensagem.');
                     }
                 }
             })
             .catch(error => {
-                console.error('Erro:', error);
+                console.error('Erro detalhado:', error);
                 alert('Ocorreu um erro ao enviar sua mensagem. Por favor, tente novamente.');
             })
             .finally(() => {
-                // Reabilita o botão
                 submitButton.disabled = false;
                 submitButton.innerHTML = originalButtonText;
             });
