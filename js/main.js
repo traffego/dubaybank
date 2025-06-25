@@ -1,8 +1,15 @@
 // Animação suave do scroll
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
+        const href = this.getAttribute('href');
+        // Não fazer nada se o href for apenas #
+        if (href === '#') return;
+        
         e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
+        const targetId = href.split('#')[1];
+        if (!targetId) return;
+        
+        const target = document.getElementById(targetId);
         if (target) {
             target.scrollIntoView({
                 behavior: 'smooth',
@@ -382,4 +389,117 @@ forms.forEach(form => {
             console.log('Formulário válido, pronto para enviar');
         }
     });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Modal functionality
+    const modal = document.getElementById('contactModal');
+    const closeButtons = document.querySelectorAll('.close-modal');
+    const contactButtons = document.querySelectorAll('.contact-button');
+    const contactForm = document.getElementById('contactForm');
+    
+    contactButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        });
+    });
+
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        });
+    });
+
+    window.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    });
+
+    // Form submission
+    contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(contactForm);
+        const submitButton = contactForm.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.innerHTML;
+        
+        submitButton.disabled = true;
+        submitButton.innerHTML = 'Enviando...';
+        
+        fetch('send_email.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Mensagem enviada com sucesso!');
+                contactForm.reset();
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            } else {
+                alert('Erro ao enviar mensagem. Por favor, tente novamente.');
+            }
+        })
+        .catch(error => {
+            alert('Erro ao enviar mensagem. Por favor, tente novamente.');
+            console.error('Error:', error);
+        })
+        .finally(() => {
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonText;
+        });
+    });
+
+    // Manipulação do formulário de suporte
+    const supportForm = document.getElementById('supportForm');
+    if (supportForm) {
+        supportForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Desabilita o botão durante o envio
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+            
+            // Coleta os dados do formulário
+            const formData = new FormData(this);
+            
+            // Envia a requisição
+            fetch('send_email.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Mensagem de sucesso
+                    alert(data.message);
+                    supportForm.reset();
+                } else {
+                    // Mensagem de erro
+                    if (data.errors) {
+                        alert(data.message + '\n' + data.errors.join('\n'));
+                    } else {
+                        alert(data.message);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Ocorreu um erro ao enviar sua mensagem. Por favor, tente novamente.');
+            })
+            .finally(() => {
+                // Reabilita o botão
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+            });
+        });
+    }
 }); 

@@ -1,56 +1,16 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dubay Bank - Seu Banco Digital</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-    <!-- Header -->
-    <header class="header-section">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="logo">
-                    <a href="#">
-                        <img src="img/logo_dubay-transformed.png" alt="Dubay Bank Logo" class="logo-image">
-                    </a>
-                </div>
-                <button class="mobile-menu-button d-lg-none" aria-label="Menu">
-                    <span class="hamburger-line"></span>
-                    <span class="hamburger-line"></span>
-                    <span class="hamburger-line"></span>
-                </button>
-                <nav class="main-nav">
-                    <ul class="d-flex list-unstyled mb-0">
-                        <li><a href="#home">Início</a></li>
-                        <li><a href="#services">Serviços</a></li>
-                        <li><a href="#about">Sobre</a></li>
-                        <li><a href="#contact">Contato</a></li>
-                    </ul>
-                </nav>
-            </div>
-        </div>
-    </header>
+<?php
+$pageTitle = 'Início';
+include 'includes/header.php';
+?>
 
     <!-- Hero Section -->
     <section class="hero" id="home">
         <div class="hero-container">
             <div class="hero-content">
-                <h1>Dubay Bank - Seu Banco Digital</h1>
-                <p>A revolução bancária que você merece. Segurança, praticidade e inovação em um só lugar.</p>
-                <a href="https://wa.me/SEUNUMERO" class="cta-button" target="_blank">
-                    <i class="fab fa-whatsapp"></i> Abrir Conta
+                <h1>ExPay Bank</h1>
+                <p>Completo pra você.<br/> Inteligente para seu negócio.</p>
+                <a href="#" class="cta-button contact-button">
+                    <i class="fas fa-envelope"></i> Fale Conosco
                 </a>
                 <div class="stats">
                     <div class="stat">
@@ -68,7 +28,7 @@
                 </div>
             </div>
             <div class="hero-image">
-                <img src="img/hero-image.png" alt="Dubay Bank App">
+                <img src="img/hero-image.png" alt="ExPay App">
             </div>
         </div>
     </section>
@@ -133,10 +93,10 @@
     <!-- About Section -->
     <section class="about-section" id="about">
         <div class="about-content">
-            <h2>Sobre o Dubay Bank</h2>
+            <h2>Sobre o ExPay</h2>
             <p>Somos mais que um banco, somos seu parceiro financeiro. Oferecemos soluções inovadoras e personalizadas para você alcançar seus objetivos.</p>
-            <a href="https://wa.me/SEUNUMERO" class="cta-button" target="_blank">
-                <i class="fab fa-whatsapp"></i> Saiba Mais
+            <a href="#" class="cta-button contact-button">
+                <i class="fas fa-envelope"></i> Entre em Contato
             </a>
         </div>
     </section>
@@ -144,55 +104,98 @@
     <!-- App Download Section -->
     <section class="app-download-section">
         <div class="container text-center">
-            <h2>Baixe nosso app</h2>
-            <p>Disponível para iOS e Android</p>
+            <h2>Baixe Nosso App</h2>
+            <p>Em breve disponível para iOS e Android.</p>
             <div class="app-stores">
-                <a href="#" class="store-button">
-                    <img src="img/appstore-1.png" alt="App Store">
-                </a>
-                <a href="#" class="store-button">
-                    <img src="img/googleplay-1.png" alt="Google Play">
-                </a>
+                <span class="store-button coming-soon">
+                    <img src="img/appstore-1.png" alt="App Store - Em breve">
+                    <div class="coming-soon-overlay">Em breve</div>
+                </span>
+                <span class="store-button coming-soon">
+                    <img src="img/googleplay-1.png" alt="Google Play - Em breve">
+                    <div class="coming-soon-overlay">Em breve</div>
+                </span>
+            </div>
+            <img style="max-width: 500px !important;" src="img/create-the-dubai-landscape.png" width="100%" alt="Dubai Landscape" class="app-landscape">
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section" id="contact">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h2>Entre em Contato</h2>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <h4>Endereço</h4>
+                                <p>R DA ASSEMBLEIA, 10<br>
+                                SAL 3301<br>
+                                CENTRO - RIO DE JANEIRO/RJ<br>
+                                CEP: 20.011-901</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <h4>Telefone</h4>
+                                <p>(21) 4149-0055</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <h4>Email</h4>
+                                <p>suporte@expaybank.com.br</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-building"></i>
+                            <div>
+                                <h4>CNPJ</h4>
+                                <p>60.127.247/0001-03</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="contact-card">
+                        <h3>Envie uma Mensagem</h3>
+                        <p>Preencha o formulário abaixo e entraremos em contato o mais breve possível.</p>
+                        <button class="cta-button contact-button w-100">
+                            <i class="fas fa-envelope"></i> Abrir Formulário
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="footer-section">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-info">
-                    <img src="img/logo_dubay-transformed.png" alt="Dubay Bank Logo" class="footer-logo">
-                    <p>O banco digital que você merece.</p>
+    <!-- Contact Modal -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Entre em Contato</h2>
+            <form id="contactForm" class="contact-form">
+                <div class="form-group">
+                    <label for="name">Nome</label>
+                    <input type="text" id="name" name="name" required>
                 </div>
-                <div class="footer-links">
-                    <h5>Links Rápidos</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#home">Início</a></li>
-                        <li><a href="#services">Serviços</a></li>
-                        <li><a href="#about">Sobre</a></li>
-                        <li><a href="#contact">Contato</a></li>
-                    </ul>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
                 </div>
-                <div class="footer-social">
-                    <h5>Redes Sociais</h5>
-                    <div class="social-links">
-                        <a href="#" class="social-icon"><i class="fab fa-facebook"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-linkedin"></i></a>
-                    </div>
+                <div class="form-group">
+                    <label for="message">Mensagem</label>
+                    <textarea id="message" name="message" required></textarea>
                 </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 Dubay Bank. Todos os direitos reservados.</p>
-            </div>
+                <button type="submit">Enviar Mensagem</button>
+            </form>
         </div>
-    </footer>
+    </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JS -->
-    <script src="js/main.js"></script>
+    <?php include 'includes/footer.php'; ?>
 </body>
 </html> 
