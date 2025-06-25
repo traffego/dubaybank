@@ -333,6 +333,146 @@ const serviceObserver = new IntersectionObserver((entries, observer) => {
 
 serviceCards.forEach(card => serviceObserver.observe(card));
 
+// Feedback Modal HTML
+document.body.insertAdjacentHTML('beforeend', `
+    <div id="feedbackModal" class="modal feedback-modal">
+        <div class="modal-content feedback-modal-content">
+            <div class="feedback-icon">
+                <i class="fas fa-check-circle success-icon"></i>
+                <i class="fas fa-times-circle error-icon"></i>
+            </div>
+            <h2 class="feedback-title"></h2>
+            <p class="feedback-message"></p>
+            <button class="feedback-button">OK</button>
+        </div>
+    </div>
+`);
+
+// Adicionar estilos para o modal de feedback
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        .feedback-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .feedback-modal.show {
+            opacity: 1;
+        }
+        
+        .feedback-modal-content {
+            background: #fff;
+            margin: 15% auto;
+            padding: 40px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            text-align: center;
+            transform: translateY(-50px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .feedback-modal.show .feedback-modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .feedback-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .success-icon {
+            color: #28a745;
+            display: none;
+        }
+        
+        .error-icon {
+            color: #dc3545;
+            display: none;
+        }
+        
+        .feedback-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .feedback-message {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+        
+        .feedback-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .feedback-button:hover {
+            background: var(--secondary-color);
+        }
+        
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-60px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+`);
+
+// Função para mostrar o modal de feedback
+function showFeedback(success, title, message) {
+    const modal = document.getElementById('feedbackModal');
+    const successIcon = modal.querySelector('.success-icon');
+    const errorIcon = modal.querySelector('.error-icon');
+    const titleElement = modal.querySelector('.feedback-title');
+    const messageElement = modal.querySelector('.feedback-message');
+    
+    // Configurar o conteúdo
+    titleElement.textContent = title;
+    messageElement.textContent = message;
+    
+    // Mostrar o ícone apropriado
+    successIcon.style.display = success ? 'block' : 'none';
+    errorIcon.style.display = success ? 'none' : 'block';
+    
+    // Mostrar o modal
+    modal.style.display = 'block';
+    setTimeout(() => modal.classList.add('show'), 10);
+    
+    // Configurar o botão de fechar
+    const closeButton = modal.querySelector('.feedback-button');
+    closeButton.onclick = function() {
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+    };
+}
+
 // Form Validation
 const forms = document.querySelectorAll('form');
 forms.forEach(form => {
@@ -351,7 +491,6 @@ forms.forEach(form => {
         });
         
         if (isValid) {
-            // Aqui você pode adicionar o código para enviar o formulário
             console.log('Formulário válido, pronto para enviar');
         }
     });
@@ -364,7 +503,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const contactButtons = document.querySelectorAll('.contact-button');
     const contactForm = document.getElementById('contactForm');
     
-    // Só adiciona os event listeners se os elementos existirem
     if (contactButtons.length > 0 && modal) {
         contactButtons.forEach(button => {
             button.addEventListener('click', function(e) {
@@ -393,66 +531,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Form submission - apenas se o formulário existir
-    if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Validação dos campos
-            const name = this.querySelector('#name').value.trim();
-            const email = this.querySelector('#email').value.trim();
-            const subject = this.querySelector('#subject').value.trim();
-            const message = this.querySelector('#message').value.trim();
-            
-            if (!name || !email || !subject || !message) {
-                alert('Por favor, preencha todos os campos.');
-                return;
-            }
-            
-            const formData = new FormData(contactForm);
-            const submitButton = contactForm.querySelector('button[type="submit"]');
-            const originalButtonText = submitButton.innerHTML;
-            
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
-            
-            fetch('send_email.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    contactForm.reset();
-                    if (modal) {
-                        modal.style.display = 'none';
-                        document.body.style.overflow = 'auto';
-                    }
-                } else {
-                    if (data.errors) {
-                        alert(data.message + '\n' + data.errors.join('\n'));
-                    } else {
-                        alert(data.message);
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-                alert('Erro ao enviar mensagem. Por favor, tente novamente.');
-            })
-            .finally(() => {
-                submitButton.disabled = false;
-                submitButton.innerHTML = originalButtonText;
-            });
-        });
-    }
-
     // Manipulação do formulário de suporte
     const supportForm = document.getElementById('supportForm');
     if (supportForm) {
+        let isSubmitting = false; // Flag para prevenir envio duplo
+        
         supportForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            // Prevenir envio duplo
+            if (isSubmitting) return;
             
             // Validação básica dos campos
             const name = this.querySelector('#name').value.trim();
@@ -461,7 +549,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const message = this.querySelector('#message').value.trim();
             
             if (!name || !email || !subject || !message) {
-                alert('Por favor, preencha todos os campos.');
+                showFeedback(false, 'Atenção', 'Por favor, preencha todos os campos.');
                 return;
             }
             
@@ -471,14 +559,11 @@ document.addEventListener('DOMContentLoaded', function() {
             submitButton.disabled = true;
             submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
             
+            // Marca como enviando
+            isSubmitting = true;
+            
             // Coleta os dados do formulário
             const formData = new FormData(this);
-            
-            // Log dos dados do formulário
-            console.log('Dados do formulário:');
-            for (let pair of formData.entries()) {
-                console.log(pair[0] + ': ' + pair[1]);
-            }
             
             // Envia a requisição
             fetch('send_email.php', {
@@ -494,23 +579,20 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 console.log('Resposta do servidor:', data);
                 if (data.success) {
-                    alert(data.message);
+                    showFeedback(true, 'Sucesso!', data.message);
                     supportForm.reset();
                 } else {
-                    if (data.errors) {
-                        alert(data.message + '\n' + data.errors.join('\n'));
-                    } else {
-                        alert(data.message || 'Erro ao enviar mensagem.');
-                    }
+                    showFeedback(false, 'Erro', data.message);
                 }
             })
             .catch(error => {
                 console.error('Erro detalhado:', error);
-                alert('Ocorreu um erro ao enviar sua mensagem. Por favor, tente novamente.');
+                showFeedback(false, 'Erro', 'Ocorreu um erro ao enviar sua mensagem. Por favor, tente novamente.');
             })
             .finally(() => {
                 submitButton.disabled = false;
                 submitButton.innerHTML = originalButtonText;
+                isSubmitting = false; // Reset da flag de envio
             });
         });
     }
