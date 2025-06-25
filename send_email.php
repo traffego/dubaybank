@@ -14,6 +14,19 @@ function writeLog($message) {
     file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
 }
 
+// Função para prevenir processamento duplicado
+function checkDuplicate($data) {
+    $hash = md5(json_encode($data) . date('Y-m-d H:i')); // Hash dos dados + minuto atual
+    $lockFile = sys_get_temp_dir() . '/email_lock_' . $hash;
+    
+    if (file_exists($lockFile) && (time() - filemtime($lockFile)) < 60) {
+        return true; // É uma duplicata
+    }
+    
+    file_put_contents($lockFile, '1');
+    return false;
+}
+
 writeLog("=== Nova requisição iniciada ===");
 writeLog("POST data: " . print_r($_POST, true));
 
@@ -25,6 +38,12 @@ try {
     // Validação básica
     if (empty($_POST['name']) || empty($_POST['email']) || empty($_POST['subject']) || empty($_POST['message'])) {
         throw new Exception('Por favor, preencha todos os campos.');
+    }
+
+    // Verificar se é uma submissão duplicada
+    if (checkDuplicate($_POST)) {
+        writeLog("Submissão duplicada detectada");
+        throw new Exception('Esta mensagem já foi enviada. Por favor, aguarde um momento antes de tentar novamente.');
     }
 
     // Sanitização dos dados
@@ -49,6 +68,8 @@ try {
     $headers[] = 'From: Site ExPay <suporte@expaybank.com.br>';
     $headers[] = 'Reply-To: ' . $name . ' <' . $email . '>';
     $headers[] = 'X-Mailer: PHP/' . phpversion();
+    $headers[] = 'X-Priority: 1';
+    $headers[] = 'X-MSMail-Priority: High';
 
     // Corpo do email em HTML
     $emailBody = "

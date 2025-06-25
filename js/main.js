@@ -510,14 +510,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Manipulação unificada dos formulários
     const forms = document.querySelectorAll('#contactForm, #supportForm');
+    
+    // Remover event listeners existentes
     forms.forEach(form => {
-        let isSubmitting = false; // Flag para prevenir envio duplo
+        const newForm = form.cloneNode(true);
+        form.parentNode.replaceChild(newForm, form);
+    });
+
+    // Adicionar novos event listeners
+    document.querySelectorAll('#contactForm, #supportForm').forEach(form => {
+        let isSubmitting = false;
         
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             // Prevenir envio duplo
-            if (isSubmitting) return;
+            if (isSubmitting) {
+                console.log('Formulário já está sendo enviado');
+                return;
+            }
             
             // Validação básica dos campos
             const name = this.querySelector('#name').value.trim();
@@ -539,22 +550,23 @@ document.addEventListener('DOMContentLoaded', function() {
             // Marca como enviando
             isSubmitting = true;
             
-            // Coleta os dados do formulário
-            const formData = new FormData(this);
-            
-            // Envia a requisição
-            fetch('send_email.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
+            try {
+                // Coleta os dados do formulário
+                const formData = new FormData(this);
+                
+                // Envia a requisição
+                const response = await fetch('send_email.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
                 if (!response.ok) {
                     throw new Error('Erro na resposta do servidor: ' + response.status);
                 }
-                return response.json();
-            })
-            .then(data => {
+
+                const data = await response.json();
                 console.log('Resposta do servidor:', data);
+
                 if (data.success) {
                     showFeedback(true, 'Sucesso!', data.message);
                     form.reset();
@@ -567,16 +579,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     showFeedback(false, 'Erro', data.message);
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Erro detalhado:', error);
                 showFeedback(false, 'Erro', 'Ocorreu um erro ao enviar sua mensagem. Por favor, tente novamente.');
-            })
-            .finally(() => {
+            } finally {
                 submitButton.disabled = false;
                 submitButton.innerHTML = originalButtonText;
-                isSubmitting = false; // Reset da flag de envio
-            });
+                isSubmitting = false;
+            }
         });
     });
 }); 
