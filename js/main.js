@@ -95,40 +95,6 @@ fadeElements.forEach(element => {
     fadeObserver.observe(element);
 });
 
-// Validação do formulário de contato
-const contactForm = document.querySelector('#contact-form');
-
-if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        // Validação básica
-        const name = document.querySelector('#name').value;
-        const email = document.querySelector('#email').value;
-        const message = document.querySelector('#message').value;
-        
-        if (!name || !email || !message) {
-            alert('Por favor, preencha todos os campos.');
-            return;
-        }
-        
-        if (!isValidEmail(email)) {
-            alert('Por favor, insira um email válido.');
-            return;
-        }
-        
-        // Aqui você pode adicionar o código para enviar o formulário
-        console.log('Formulário enviado:', { name, email, message });
-        contactForm.reset();
-        alert('Mensagem enviada com sucesso!');
-    });
-}
-
-function isValidEmail(email) {
-    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
-}
-
 // Menu Mobile
 const menuToggle = document.querySelector('.menu-toggle');
 const mainNav = document.querySelector('.main-nav');
@@ -462,11 +428,22 @@ document.addEventListener('DOMContentLoaded', function() {
         supportForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
+            // Validação básica dos campos
+            const name = this.querySelector('#name').value.trim();
+            const email = this.querySelector('#email').value.trim();
+            const subject = this.querySelector('#subject').value.trim();
+            const message = this.querySelector('#message').value.trim();
+            
+            if (!name || !email || !subject || !message) {
+                alert('Por favor, preencha todos os campos.');
+                return;
+            }
+            
             // Desabilita o botão durante o envio
             const submitButton = this.querySelector('button[type="submit"]');
             const originalButtonText = submitButton.innerHTML;
             submitButton.disabled = true;
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
             
             // Coleta os dados do formulário
             const formData = new FormData(this);
@@ -478,6 +455,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.json())
             .then(data => {
+                console.log('Resposta do servidor:', data); // Debug
                 if (data.success) {
                     // Mensagem de sucesso
                     alert(data.message);
