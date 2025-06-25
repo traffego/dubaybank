@@ -60,10 +60,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     
     // Sanitização dos dados
-    $name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
-    $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-    $subject = filter_var($_POST['subject'], FILTER_SANITIZE_STRING);
-    $message = filter_var($_POST['message'], FILTER_SANITIZE_STRING);
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $subject = $_POST['subject'];
+    $message = $_POST['message'];
     
     writeLog("Dados sanitizados e validados com sucesso");
     
@@ -72,7 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mail = new PHPMailer(true);
         writeLog("Iniciando configuração do PHPMailer");
         
-        // Configurações do servidor Hostinger
+        // Configurações do servidor
         $mail->isSMTP();
         $mail->Host = 'smtp.hostinger.com';
         $mail->SMTPAuth = true;
@@ -92,13 +92,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         writeLog("Configurando remetente e destinatário");
         // Remetente e destinatário
-        $mail->setFrom('suporte@expaybank.com.br', 'Suporte ExPay');
+        $mail->setFrom('suporte@expaybank.com.br', 'Site ExPay');
         $mail->addAddress('suporte@expaybank.com.br', 'Suporte ExPay');
         $mail->addReplyTo($email, $name);
         
         // Conteúdo do email
         $mail->isHTML(true);
-        $mail->Subject = "[Contato Site] " . $subject;
+        $mail->Subject = "[Contato do Site] " . $subject;
         
         $emailBody = "
         <h2>Nova mensagem do formulário de contato</h2>
@@ -112,7 +112,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         ";
         
         $mail->Body = $emailBody;
-        $mail->AltBody = strip_tags(str_replace(['<br>', '</p>'], "\n", $emailBody));
+        $mail->AltBody = strip_tags($emailBody);
         
         writeLog("Tentando enviar o email");
         // Envio do email
@@ -125,7 +125,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         echo json_encode([
             'success' => true,
-            'message' => 'Mensagem enviada com sucesso! Em breve entraremos em contato.'
+            'message' => 'Mensagem enviada com sucesso! Em breve entraremos em contato.',
+            'debug' => $debugOutput
         ]);
         
     } catch (Exception $e) {
