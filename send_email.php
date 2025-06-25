@@ -6,12 +6,20 @@ error_reporting(E_ALL);
 
 // Log function
 function writeLog($message) {
-    $logFile = 'email_log.txt';
+    $logFile = __DIR__ . '/email_log.txt';
     $timestamp = date('Y-m-d H:i:s');
     file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
 }
 
-writeLog("Iniciando processamento de email");
+// Verificar permissões de escrita
+$logFile = __DIR__ . '/email_log.txt';
+if (!is_writable(dirname($logFile))) {
+    error_log("Diretório não tem permissão de escrita: " . dirname($logFile));
+}
+
+writeLog("=== Nova requisição iniciada ===");
+writeLog("Método: " . $_SERVER['REQUEST_METHOD']);
+writeLog("Dados POST: " . print_r($_POST, true));
 
 // Verificar se o Composer está instalado
 if (!file_exists('vendor/autoload.php')) {
@@ -32,8 +40,6 @@ use PHPMailer\PHPMailer\Exception;
 header('Content-Type: application/json');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    writeLog("Dados recebidos via POST: " . print_r($_POST, true));
-    
     // Validação dos campos
     $required_fields = ['name', 'email', 'subject', 'message'];
     $errors = [];
@@ -65,12 +71,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $subject = $_POST['subject'];
     $message = $_POST['message'];
     
-    writeLog("Dados sanitizados e validados com sucesso");
+    writeLog("Dados validados com sucesso");
     
-    // Criação do objeto PHPMailer
     try {
         $mail = new PHPMailer(true);
-        writeLog("Iniciando configuração do PHPMailer");
         
         // Configurações do servidor
         $mail->isSMTP();
@@ -82,15 +86,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mail->Port = 465;
         $mail->CharSet = 'UTF-8';
         
-        // Debug SMTP
+        // Debug SMTP detalhado
         $mail->SMTPDebug = SMTP::DEBUG_SERVER;
         $debugOutput = '';
         $mail->Debugoutput = function($str, $level) use (&$debugOutput) {
             writeLog("SMTP Debug ($level): $str");
-            $debugOutput .= "Debug ($level): $str\n";
+            $debugOutput .= "$str\n";
         };
         
-        writeLog("Configurando remetente e destinatário");
+        // Verificar conexão SMTP antes de prosseguir
+        try {
+            writeLog("Testando conexão SMTP...");
+            $smtp = fsockopen($mail->Host, $mail->Port, $errno, $errstr, 30);
+            if (!$smtp) {
+                throw new Exception("Erro de conexão SMTP: $errstr ($errno)");
+            }
+            fclose($smtp);
+            writeLog("Conexão SMTP bem sucedida");
+        } catch (Exception $e) {
+            writeLog("Erro na conexão SMTP: " . $e->getMessage());
+            throw $e;
+        }
+        
         // Remetente e destinatário
         $mail->setFrom('suporte@expaybank.com.br', 'Site ExPay');
         $mail->addAddress('suporte@expaybank.com.br', 'Suporte ExPay');
@@ -114,14 +131,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mail->Body = $emailBody;
         $mail->AltBody = strip_tags($emailBody);
         
-        writeLog("Tentando enviar o email");
-        // Envio do email
+        writeLog("Tentando enviar o email...");
         $mail->send();
-        writeLog("Email enviado com sucesso");
-        
-        // Log da mensagem
-        $log_entry = date('Y-m-d H:i:s') . " - Email enviado de: " . $email . "\n";
-        file_put_contents('dados.txt', $log_entry, FILE_APPEND);
+        writeLog("Email enviado com sucesso!");
         
         echo json_encode([
             'success' => true,
@@ -130,10 +142,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         ]);
         
     } catch (Exception $e) {
-        writeLog("Erro ao enviar email: " . $mail->ErrorInfo . "\nDebug completo:\n" . $debugOutput);
+        $errorMessage = $mail->ErrorInfo ?? $e->getMessage();
+        writeLog("Erro ao enviar email: " . $errorMessage);
+        writeLog("Debug SMTP: " . $debugOutput);
+        
         echo json_encode([
             'success' => false,
-            'message' => 'Erro ao enviar email. Detalhes: ' . $mail->ErrorInfo,
+            'message' => 'Erro ao enviar email: ' . $errorMessage,
             'debug' => $debugOutput
         ]);
     }
