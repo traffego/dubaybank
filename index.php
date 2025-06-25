@@ -188,6 +188,10 @@ include 'includes/header.php';
                     <input type="email" id="email" name="email" required>
                 </div>
                 <div class="form-group">
+                    <label for="subject">Assunto</label>
+                    <input type="text" id="subject" name="subject" required>
+                </div>
+                <div class="form-group">
                     <label for="message">Mensagem</label>
                     <textarea id="message" name="message" required></textarea>
                 </div>

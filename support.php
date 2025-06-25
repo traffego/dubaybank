@@ -146,12 +146,29 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         
+        // Validação dos campos
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const subject = document.getElementById('subject').value.trim();
+        const message = document.getElementById('message').value.trim();
+        
+        // Verificar se todos os campos estão preenchidos
+        if (!name || !email || !subject || !message) {
+            alert('Por favor, preencha todos os campos obrigatórios.');
+            return;
+        }
+        
         const submitButton = this.querySelector('button[type="submit"]');
         const originalText = submitButton.innerHTML;
         submitButton.disabled = true;
         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
         
+        // Criar FormData e verificar os dados
         const formData = new FormData(this);
+        console.log('Dados do formulário:');
+        for (let pair of formData.entries()) {
+            console.log(pair[0] + ': ' + pair[1]);
+        }
         
         fetch('send_email.php', {
             method: 'POST',
@@ -159,6 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
+            console.log('Resposta do servidor:', data); // Debug
             if (data.success) {
                 alert(data.message);
                 form.reset();
