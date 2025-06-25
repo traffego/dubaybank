@@ -120,59 +120,6 @@ include 'includes/header.php';
         </div>
     </section>
 
-    <!-- Contact Section -->
-    <section class="contact-section" id="contact">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h2>Entre em Contato</h2>
-                    <div class="contact-info">
-                        <div class="contact-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <div>
-                                <h4>Endereço</h4>
-                                <p>R DA ASSEMBLEIA, 10<br>
-                                SAL 3301<br>
-                                CENTRO - RIO DE JANEIRO/RJ<br>
-                                CEP: 20.011-901</p>
-                            </div>
-                        </div>
-                        <div class="contact-item">
-                            <i class="fas fa-phone"></i>
-                            <div>
-                                <h4>Telefone</h4>
-                                <p>(21) 4149-0055</p>
-                            </div>
-                        </div>
-                        <div class="contact-item">
-                            <i class="fas fa-envelope"></i>
-                            <div>
-                                <h4>Email</h4>
-                                <p>suporte@expaybank.com.br</p>
-                            </div>
-                        </div>
-                        <div class="contact-item">
-                            <i class="fas fa-building"></i>
-                            <div>
-                                <h4>CNPJ</h4>
-                                <p>60.127.247/0001-03</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="contact-card">
-                        <h3>Envie uma Mensagem</h3>
-                        <p>Preencha o formulário abaixo e entraremos em contato o mais breve possível.</p>
-                        <button class="cta-button contact-button w-100">
-                            <i class="fas fa-envelope"></i> Abrir Formulário
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Contact Modal -->
     <div id="contactModal" class="modal">
         <div class="modal-content">
